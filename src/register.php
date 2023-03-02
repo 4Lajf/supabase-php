@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (isset($_SESSION["email"])) {
+	header("Location: protected.php");
+	die();
+}
+?>
 <!DOCTYPE html>
 <main>
 
@@ -10,8 +17,10 @@
 
 	<body>
 		<h1 class="text-center">Register</h1>
-		<p class="text-white">
-			<?php echo $message; ?>
+		<p>
+			<?php if (isset($_SESSION["status"])) {
+				echo $_SESSION["status"];
+			} ?>
 		</p>
 		<form action="scripts-register.php" method="POST" class="auth-form container">
 			<label for="username"> Username </label>
@@ -23,9 +32,6 @@
 			<label for="confirmPassword"> Confirm Password </label>
 			<input type="password" name="confirmPassword" />
 			<button type="submit">Register</button>
-		</form>
-		<form class="auth-form container" method="POST">
-			<button formaction="loginWithProvider.php">Github</button>
 		</form>
 	</body>
 </main>
