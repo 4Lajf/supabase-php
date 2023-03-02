@@ -12,3 +12,4 @@ composer install
 npm install
 ```
 Put this repo into your xamp/htdocs folder and run Apache server. You can access the site on localhost/<folder_name>/src/login.php
+Move `vendor` folder from the main folder to `/src`
