@@ -1,6 +1,18 @@
 <?php
 session_start();
-if (!isset($_SESSION["email"])) {
+function console_log($output, $with_script_tags = true)
+{
+    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
+        ');';
+    if ($with_script_tags) {
+        $js_code = '<script>' . $js_code . '</script>';
+    }
+    echo $js_code;
+}
+$encoded = json_encode($_SESSION["session"]);
+$php_array = json_decode($encoded, true);
+
+if (!isset($_SESSION["session"])) {
     header("Location: login.php");
     die();
 }
@@ -18,7 +30,7 @@ if (!isset($_SESSION["email"])) {
 
     <body>
         <h1 class="text-center">Welcome
-            <?php echo $_SESSION["email"] ?> to the protected page!
+            <?php echo $php_array["user_metadata"]["username"] ?> to the protected page!
         </h1>
         <p class="text-center">This content is only visible to authenticated users.</p>
         <form action="scripts-logout.php" method="POST" class="auth-form container">

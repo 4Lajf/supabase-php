@@ -3,15 +3,16 @@ session_start();
 require "vendor/autoload.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $_SESSION["status"] = "";
+    $pattern = "/^[a-zA-Z0-9\-\_\.\,\:\;\@\#\!\$\%\&\*\(\)\+\=\?\[\]\{\}\|\\\^\`\~\']+$/";
+    $_SESSION["login_error"] = "";
     $email = $_POST["email"];
     $password = $_POST["password"];
     if (empty($email) || empty($password)) {
-        $_SESSION["status"] = "Please fill in all fields.";
+        $_SESSION["login_error"] = "Please fill in all fields.";
         header("Location: login.php");
         die();
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION["status"] = "Invalid email format.";
+        $_SESSION["login_error"] = "Invalid email format.";
         header("Location: login.php");
         die();
     } else {
@@ -29,11 +30,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (isset($data->access_token)) {
                 $userData = $data->user; //get the user data
                 header("Location: protected.php");
-                $_SESSION["email"] = $email;
+                $_SESSION["session"] = $userData;
                 die();
+            } else {
+                throw new Exception("Error: no access token set");
             }
         } catch (Exception $e) {
-            $_SESSION["status"] = $auth->getError();
+            $_SESSION["login_error"] = $auth->getError();
             header("Location: login.php");
             die();
         }

@@ -1,6 +1,7 @@
 <?php
 session_start();
-if (isset($_SESSION["email"])) {
+
+if (isset($_SESSION["session"])) {
 	header("Location: protected.php");
 	die();
 }
@@ -20,9 +21,12 @@ if (isset($_SESSION["email"])) {
 		<h1 class="text-center">Login</h1>
 		<form action="scripts-login.php" method="POST" class="auth-form container">
 			<p>
-				<?php if (isset($_SESSION["status"])) {
-					echo $_SESSION["status"];
-				} ?>
+				<?php
+				if (isset($_SESSION['login_error'])) {
+					echo '<div class="error">' . $_SESSION['login_error'] . '</div>';
+					unset($_SESSION['login_error']);
+				}
+				?>
 			</p>
 			<label for="email"> Email </label>
 			<input type="text" name="email" />
@@ -30,5 +34,7 @@ if (isset($_SESSION["email"])) {
 			<input type="password" name="password" />
 			<button type="submit">Login</button>
 		</form>
-	</body>
-</main>
+		<a href="register.php">
+			<button class="container">Register</button>
+		</a>
+		<main>

@@ -18,9 +18,12 @@ if (isset($_SESSION["email"])) {
 	<body>
 		<h1 class="text-center">Register</h1>
 		<p>
-			<?php if (isset($_SESSION["status"])) {
-				echo $_SESSION["status"];
-			} ?>
+			<?php
+			if (isset($_SESSION['register_error'])) {
+				echo '<div class="error">' . $_SESSION['register_error'] . '</div>';
+				unset($_SESSION['register_error']);
+			}
+			?>
 		</p>
 		<form action="scripts-register.php" method="POST" class="auth-form container">
 			<label for="username"> Username </label>
