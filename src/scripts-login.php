@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $data = $auth->data();
 
             if (isset($data->access_token)) {
-                $userData = $data->user; //get the user data
+                $userData = $data->user;
                 header("Location: protected.php");
                 $_SESSION["session"] = $userData;
                 die();
