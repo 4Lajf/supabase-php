@@ -18,7 +18,6 @@ function console_log($output, $with_script_tags = true)
     }
     echo $js_code;
 }
-console_log($_SESSION["session"]);
 $encoded = json_encode($_SESSION["session"]);
 $php_array = json_decode($encoded, true);
 ?>
@@ -37,10 +36,21 @@ $php_array = json_decode($encoded, true);
         <h1 class="text-center">Welcome
             <?php echo $php_array["user_metadata"]["username"] ?> to the protected page!
         </h1>
+        <?php
+        if (isset($_SESSION['userDeletedMsg'])) {
+            echo '<h2>' . $_SESSION['userDeletedMsg'] . '</h2>';
+            unset($_SESSION['userDeletedMsg']);
+        }
+
+        if (isset($_SESSION['cityDeleteMsg'])) {
+            echo '<h2>' . $_SESSION['cityDeleteMsg'] . '</h2>';
+            unset($_SESSION['cityDeleteMsg']);
+        }
+        ?>
         <h2>List of users:</h2>
         <?php
         echo "<table>";
-        echo "<tr><th>Imię</th><th>Nazwisko</th><th>Data Urodzenia</th><th>Miasto</th><th>Województwo</th></tr>";
+        echo "<tr><th>Imię</th><th>Nazwisko</th><th>Data Urodzenia</th><th>Miasto</th><th>Województwo</th><td>Akcje</td></tr>";
         $userDataQuery = $service->initializeQueryBuilder();
         $citySateQuery = $service->initializeQueryBuilder();
 
@@ -57,10 +67,22 @@ $php_array = json_decode($encoded, true);
                 ->execute()
                 ->getResult();
 
+            // console_log($fetchUserData);
+            // console_log($fetchCityState);
             for ($i = 0; $i < sizeof($fetchUserData); $i++) {
                 $userData = json_decode(json_encode($fetchUserData[$i]), true);
-                $cityState = json_decode(json_encode($fetchCityState[$i]), true);
-                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}<td>{$cityState['states']['state']}</tr>";
+                // Value to search for
+                $search_value = $userData['city_id'];
+
+                // Use array_filter to find the record(s)
+                $stateId_filtered = array_filter($fetchCityState, function ($user) use ($search_value) {
+                    return $user->id == $search_value;
+                });
+
+                $stateId = array_values($stateId_filtered);
+
+                $cityState = json_decode(json_encode($stateId[0]), true);
+                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}\">Usuń</a></td></tr>";
             }
 
             echo "</table>";
@@ -68,7 +90,41 @@ $php_array = json_decode($encoded, true);
             console_log($e->getMessage());
         }
         ?>
+
+        <?php
+        console_log($_SESSION['showTable']);
+        if (isset($_SESSION['showTable'])) {
+            echo "<table>";
+            echo "<tr><th>id</th><th>state_id</th><th>city</th><td>Akcje</td></tr>";
+            $citiesQuery = $service->initializeQueryBuilder();
+
+            try {
+                $fetchCities = $citiesQuery->select('*')
+                    ->from('cities')
+                    ->join('states', 'id')
+                    ->execute()
+                    ->getResult();
+
+                for ($i = 0; $i < sizeof($fetchCities); $i++) {
+                    $cityData = json_decode(json_encode($fetchCities[$i]), true);
+
+                    echo "<tr><td>{$cityData['id']}</td><td>{$cityData['state_id']}</td><td>{$cityData['city']}<td><a href=\"scripts-deleteCity.php?cityId={$cityData['id']}\">Usuń</a></td></tr>";
+                }
+
+                echo "</table>";
+            } catch (Exception $e) {
+                console_log($e->getMessage());
+            }
+        }
+        unset($_SESSION['showTable']);
+        ?>
+
         <p class="text-center">This content is only visible to authenticated users.</p>
+        <div class="auth-form container">
+            <a href="scripts-showTable.php?table=cities">
+                <button>Show cities</button>
+            </a>
+        </div>
         <form action="scripts-logout.php" method="POST" class="auth-form container">
             <button type="submit">Logout</button>
         </form>

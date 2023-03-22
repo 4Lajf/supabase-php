@@ -25,6 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $data = $db->delete($php_array["id"]); //the parameter ('1') is the product id
     } catch (Exception $e) {
         echo $e->getMessage();
+        die();
     }
 
     session_destroy();
