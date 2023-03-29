@@ -2,6 +2,11 @@
 session_start();
 require "vendor/autoload.php";
 
+if (!isset($_SESSION["session"])) {
+    header("Location: login.php");
+    die();
+}
+
 if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
 } else {

@@ -27,13 +27,13 @@ if (isset($_SESSION["email"])) {
 		</p>
 		<form action="scripts-register.php" method="POST" class="auth-form container">
 			<label for="username"> Username </label>
-			<input type="text" name="username" />
+			<input type="text" name="username" required autof />
 			<label for="email"> E-mail </label>
-			<input type="text" name="email" />
+			<input type="text" name="email" required />
 			<label for="passowrd"> Password </label>
-			<input type="password" name="password" />
+			<input type="password" name="password" required />
 			<label for="confirmPassword"> Confirm Password </label>
-			<input type="password" name="confirmPassword" />
+			<input type="password" name="confirmPassword" required />
 			<button type="submit">Register</button>
 		</form>
 	</body>

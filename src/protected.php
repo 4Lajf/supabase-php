@@ -1,3 +1,9 @@
+<!-- TOOD: make addUser add users to auth table
+add security to dangerous acrions
+merge users and profiles table
+avoid multiple ORs in forms
+do historyback instsed of header location -->
+
 <?php
 session_start();
 if (!isset($_SESSION["session"])) {
@@ -67,8 +73,6 @@ $php_array = json_decode($encoded, true);
                 ->execute()
                 ->getResult();
 
-            // console_log($fetchUserData);
-            // console_log($fetchCityState);
             for ($i = 0; $i < sizeof($fetchUserData); $i++) {
                 $userData = json_decode(json_encode($fetchUserData[$i]), true);
                 // Value to search for
@@ -92,7 +96,6 @@ $php_array = json_decode($encoded, true);
         ?>
 
         <?php
-        console_log($_SESSION['showTable']);
         if (isset($_SESSION['showTable'])) {
             echo "<table>";
             echo "<tr><th>id</th><th>state_id</th><th>city</th><td>Akcje</td></tr>";
@@ -123,6 +126,11 @@ $php_array = json_decode($encoded, true);
         <div class="auth-form container">
             <a href="scripts-showTable.php?table=cities">
                 <button>Show cities</button>
+            </a>
+        </div>
+        <div class="auth-form container">
+            <a href="addUser.php">
+                <button>Add User</button>
             </a>
         </div>
         <form action="scripts-logout.php" method="POST" class="auth-form container">

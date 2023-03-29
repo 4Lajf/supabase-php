@@ -3,7 +3,6 @@ session_start();
 require "vendor/autoload.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $pattern = "/^[a-zA-Z0-9\-\_\.\,\:\;\@\#\!\$\%\&\*\(\)\+\=\?\[\]\{\}\|\\\^\`\~\']+$/";
     $_SESSION["login_error"] = "";
     $email = $_POST["email"];
     $password = $_POST["password"];

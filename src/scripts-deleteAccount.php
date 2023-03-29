@@ -1,4 +1,10 @@
 <?php
+
+if (!isset($_SESSION["session"])) {
+    header("Location: login.php");
+    die();
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     session_start();
     require "vendor/autoload.php";
@@ -22,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         $encoded = json_encode($_SESSION["session"]);
         $php_array = json_decode($encoded, true);
-        $data = $db->delete($php_array["id"]); //the parameter ('1') is the product id
+        $data = $db->delete($php_array["id"]);
     } catch (Exception $e) {
         echo $e->getMessage();
         die();

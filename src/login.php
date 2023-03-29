@@ -29,9 +29,9 @@ if (isset($_SESSION["session"])) {
 				?>
 			</p>
 			<label for="email"> Email </label>
-			<input type="text" name="email" />
+			<input type="text" name="email" required autofocus />
 			<label for="password"> Password </label>
-			<input type="password" name="password" />
+			<input type="password" name="password" required />
 			<button type="submit">Login</button>
 		</form>
 		<a href="register.php">

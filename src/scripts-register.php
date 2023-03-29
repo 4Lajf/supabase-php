@@ -8,6 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST["email"];
     $password = $_POST["password"];
     $confirmPassword = $_POST["confirmPassword"];
+    $pattern = '/^[\p{L}\p{N}\p{P}]+$/u';
 
     if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
         $_SESSION["register_error"] = "Please fill in all fields.";
