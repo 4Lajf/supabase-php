@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 
 if (isset($_SESSION["session"])) {
 	header("Location: protected.php");
@@ -34,7 +34,4 @@ if (isset($_SESSION["session"])) {
 			<input type="password" name="password" required />
 			<button type="submit">Login</button>
 		</form>
-		<a href="register.php">
-			<button class="container">Register</button>
-		</a>
 		<main>

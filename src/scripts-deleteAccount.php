@@ -6,7 +6,7 @@ if (!isset($_SESSION["session"])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    session_start();
+
     require "vendor/autoload.php";
     function console_log($output, $with_script_tags = true)
     {

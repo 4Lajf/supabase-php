@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require "vendor/autoload.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -8,11 +8,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
     if (empty($email) || empty($password)) {
         $_SESSION["login_error"] = "Please fill in all fields.";
-        header("Location: login.php");
+        echo "<script> history.back(); </script>";
         die();
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION["login_error"] = "Invalid email format.";
-        header("Location: login.php");
+        echo "<script> history.back(); </script>";
         die();
     } else {
         $service = new PHPSupabase\Service(
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         } catch (Exception $e) {
             $_SESSION["login_error"] = $auth->getError();
-            header("Location: login.php");
+            echo "<script> history.back(); </script>";
             die();
         }
     }

@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require "vendor/autoload.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -9,22 +9,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST["password"];
     $confirmPassword = $_POST["confirmPassword"];
     $pattern = '/^[\p{L}\p{N}\p{P}]+$/u';
+    //polskie litery...
+    $registrationDisabled = true;
+
+    if ($registrationDisabled == true) {
+        $_SESSION["register_error"] = 'Registration is currently disabled';
+        echo "<script> history.back(); </script>";
+        die();
+    }
 
     if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
         $_SESSION["register_error"] = "Please fill in all fields.";
-        header("Location: register.php");
+        echo "<script> history.back(); </script>";
         die();
-    } elseif (preg_match($pattern, $username)) {
-        $_SESSION["register_error"] = "Username can only contain letters, numbers and special symbols.";
-        header("Location: register.php");
-        die();
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } /* elseif (preg_match($pattern, $username)) {
+     $_SESSION["register_error"] = "Username can only contain letters, numbers and special symbols.";
+     header("Location: register.php");
+     die();
+     } */elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION["register_error"] = "Invalid email format.";
-        header("Location: register.php");
+        echo "<script> history.back(); </script>";
         die();
     } elseif ($password !== $confirmPassword) {
         $_SESSION["register_error"] = "Passwords do not match.";
-        header("Location: register.php");
+        echo "<script> history.back(); </script>";
         die();
     } else {
         $service = new PHPSupabase\Service(
@@ -50,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         } catch (Exception $e) {
             $_SESSION["register_error"] = $auth->getError();
-            header("Location: register.php");
+            echo "<script> history.back(); </script>";
             die();
         }
     }

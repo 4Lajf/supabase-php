@@ -1,10 +1,17 @@
 <?php
-
-
 if (!isset($_SESSION["session"])) {
 	header("Location: login.php");
 	die();
 }
+
+if (isset($_GET['userId'])) {
+	$_SESSION['userId'] = $_GET['userId'];
+	$userId = $_SESSION['userId'];
+} else {
+	echo "Missing parameter \"userId\" ";
+	die();
+}
+
 require "vendor/autoload.php";
 
 $service = new PHPSupabase\Service(
@@ -22,8 +29,56 @@ function console_log($output, $with_script_tags = true)
 	echo $js_code;
 }
 
-$listCitiesQuery = $service->initializeQueryBuilder();
+$userDataQuery = $service->initializeQueryBuilder();
+$citySateQuery = $service->initializeQueryBuilder();
 
+$firstname = '';
+$lastname = '';
+$birthday = '';
+$state = '';
+$city = '';
+
+try {
+	$fetchUserData = $userDataQuery
+		->select('*')
+		->from('users')
+		->join('cities', 'id')
+		->where('id', "eq.$userId") //eq -> equal
+		->execute()
+		->getResult();
+
+	$fetchCityState = $citySateQuery->select('*')
+		->from('cities')
+		->join('states', 'id')
+		->execute()
+		->getResult();
+
+	for ($i = 0; $i < sizeof($fetchUserData); $i++) {
+		$userData = json_decode(json_encode($fetchUserData[$i]), true);
+		// Value to search for
+		$search_value = $userData['city_id'];
+
+		// Use array_filter to find the record(s)
+		$stateId_filtered = array_filter($fetchCityState, function ($user) use ($search_value) {
+			return $user->id == $search_value;
+		});
+
+		$stateId = array_values($stateId_filtered);
+
+		$cityState = json_decode(json_encode($stateId[0]), true);
+		$firstname = $userData['firstName'];
+		$lastname = $userData['lastName'];
+		$birthday = $userData['birthday'];
+		$state = $cityState['state_id'];
+		console_log($state);
+		$city = $userData['cities']['city'];
+	}
+} catch (Exception $e) {
+	console_log($e->getMessage());
+}
+
+
+$listCitiesQuery = $service->initializeQueryBuilder();
 try {
 	$listCities = $listCitiesQuery->select('id, state')
 		->from('states')
@@ -55,22 +110,22 @@ console_log($listCities);
 	</head>
 
 	<body>
-		<h1 class="text-center">Add User</h1>
-		<form action="scripts-addUser.php" method="POST" class="auth-form container">
+		<h1 class="text-center">Edit User</h1>
+		<form action="scripts-editUser.php" method="POST" class="auth-form container">
 			<p>
 				<?php
-				if (isset($_SESSION['addUser_error'])) {
-					echo '<div class="error">' . $_SESSION['addUser_error'] . '</div>';
-					unset($_SESSION['addUser_error']);
+				if (isset($_SESSION['editUser_error'])) {
+					echo '<div class="error">' . $_SESSION['editUser_error'] . '</div>';
+					unset($_SESSION['editUser_error']);
 				}
 				?>
 			</p>
 			<label for="firstname"> Name </label>
-			<input type="text" name="firstname" required autofocus />
+			<input type="text" name="firstname" autofocus value="<?php echo $firstname ?>" />
 			<label for="lastname"> Lastname </label>
-			<input type="text" name="lastname" required />
+			<input type="text" name="lastname" value="<?php echo $lastname ?>" />
 			<label for="birthday"> Birthday </label>
-			<input type="date" name="birthday" required />
+			<input type="date" name="birthday" value="<?php echo $birthday ?>" />
 			<label for="state"> State </label>
 			<select name="state" id="state" onchange="checkIfSelected()">
 				<option value="0">Choose a state</option>
@@ -80,14 +135,18 @@ console_log($listCities);
 			</select>
 			<div id="search-container">
 				<label for="search">Search City:</label>
-				<input type="text" name="city" id="city" oninput="searchCity()" placeholder="Search for a city...">
+				<input type="text" name="city" id="city" oninput="searchCity()" placeholder="Search for a city..."
+					value="<?php echo $city ?>">
 				<div id="search-results"></div>
 			</div>
 
 			<script>
+				document.getElementById('state').value = <?php echo $state ?>;
 				let cities = <?php echo json_encode($listCities); ?>;
+
 				const citySearch = document.getElementById('city');
 				citySearch.disabled = true;
+				checkIfSelected();
 
 				function checkIfSelected() {
 					const stateSelect = document.getElementById('state');
@@ -135,7 +194,6 @@ console_log($listCities);
 				}
 
 			</script>
-
-			<button type="submit">Add User</button>
+			<button type="submit">Edit User</button>
 		</form>
 		<main>

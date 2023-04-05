@@ -1,11 +1,13 @@
 <!-- TOOD: make addUser add users to auth table
 add security to dangerous acrions
 merge users and profiles table
-avoid multiple ORs in forms
-do historyback instsed of header location -->
+do historyback instsed of header location
+users added by register.php are admin accounts
+users added through form while singed as admin are standard accounts with only basic view
+Make Hide Cities actually hide cities -->
 
 <?php
-session_start();
+
 if (!isset($_SESSION["session"])) {
     header("Location: login.php");
     die();
@@ -52,11 +54,21 @@ $php_array = json_decode($encoded, true);
             echo '<h2>' . $_SESSION['cityDeleteMsg'] . '</h2>';
             unset($_SESSION['cityDeleteMsg']);
         }
+
+        if (isset($_SESSION['editMessage'])) {
+            echo '<h4>' . $_SESSION['editMessage'] . '</h4>';
+            unset($_SESSION['editMessage']);
+        }
+
+        if (isset($_SESSION['addMessage'])) {
+            echo '<h4>' . $_SESSION['addMessage'] . '</h4>';
+            unset($_SESSION['addMessage']);
+        }
         ?>
         <h2>List of users:</h2>
         <?php
         echo "<table>";
-        echo "<tr><th>Imię</th><th>Nazwisko</th><th>Data Urodzenia</th><th>Miasto</th><th>Województwo</th><td>Akcje</td></tr>";
+        echo "<tr><th>Imię</th><th>Nazwisko</th><th>Data Urodzenia</th><th>Miasto</th><th>Województwo</th><td>Akcje</td><td></td></tr>";
         $userDataQuery = $service->initializeQueryBuilder();
         $citySateQuery = $service->initializeQueryBuilder();
 
@@ -86,7 +98,7 @@ $php_array = json_decode($encoded, true);
                 $stateId = array_values($stateId_filtered);
 
                 $cityState = json_decode(json_encode($stateId[0]), true);
-                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}\">Usuń</a></td></tr>";
+                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}\">Usuń</a></td><td><a href=\"editUser.php?userId={$userData['id']}\">Edytuj</a></td></tr>";
             }
 
             echo "</table>";
@@ -119,13 +131,20 @@ $php_array = json_decode($encoded, true);
                 console_log($e->getMessage());
             }
         }
-        unset($_SESSION['showTable']);
         ?>
 
         <p class="text-center">This content is only visible to authenticated users.</p>
         <div class="auth-form container">
             <a href="scripts-showTable.php?table=cities">
-                <button>Show cities</button>
+                <button>
+                    <?php if (isset($_SESSION['showTable'])) {
+                        echo 'Hide Cities';
+                    } else {
+                        echo 'Show Cities';
+                    }
+                    unset($_SESSION['showTable']);
+                    ?>
+                </button>
             </a>
         </div>
         <div class="auth-form container">
