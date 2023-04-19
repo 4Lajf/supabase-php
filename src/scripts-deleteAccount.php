@@ -8,15 +8,6 @@ if (!isset($_SESSION["session"])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     require "vendor/autoload.php";
-    function console_log($output, $with_script_tags = true)
-    {
-        $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-            ');';
-        if ($with_script_tags) {
-            $js_code = '<script>' . $js_code . '</script>';
-        }
-        echo $js_code;
-    }
 
     $service = new PHPSupabase\Service(
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc",

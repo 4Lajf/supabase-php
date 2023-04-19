@@ -6,16 +6,6 @@ if (!isset($_SESSION["session"])) {
     die();
 }
 
-function console_log($output, $with_script_tags = true)
-{
-    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-        ');';
-    if ($with_script_tags) {
-        $js_code = '<script>' . $js_code . '</script>';
-    }
-    echo $js_code;
-}
-
 $firstname = $_POST["firstname"];
 $lastname = $_POST["lastname"];
 $birthday = $_POST["birthday"];
@@ -50,8 +40,8 @@ try {
         ->getResult();
 
 } catch (Exception $e) {
-    echo "An error occured phase 1";
-    console_log($e->getMessage());
+    echo "An error occured during loading cities...";
+    echo $e->getMessage();
     die();
 }
 
@@ -67,19 +57,19 @@ if (!isset($fetchCity[0]->city)) {
         $data = $addCityQuery->insert($new);
     } catch (Exception $e) {
         echo $e->getMessage();
-        echo "An error occured phase 2";
+        echo "An error occured during adding city...";
     }
 
     try {
         $fetchCity = $findCityQuery->select('id, city')
             ->from('cities')
-            ->where('city', "eq.$city") //eq -> equal
+            ->where('city', "eq.$city")
             ->execute()
             ->getResult();
 
     } catch (Exception $e) {
-        echo "An error occured phase 3";
-        console_log($e->getMessage());
+        echo "An error occured during loading cities...";
+        echo $e->getMessage();
         die();
     }
 }

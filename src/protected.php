@@ -3,28 +3,20 @@ merge users and profiles table
 Make Hide Cities actually hide cities -->
 
 <?php
-
+//Jeżeli sesja nie istnieje (użytkownik nie jest zalogowany) nie pokazuj strony
 if (!isset($_SESSION["session"])) {
     header("Location: login.php");
     die();
 }
-console_log($_SESSION["session"]);
 
+//Załaduj biblioteke Supabase
 require "vendor/autoload.php";
 $service = new PHPSupabase\Service(
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc",
     "https://hsepjgxxozeyktjkbewc.supabase.co/rest/v1/"
 );
 
-function console_log($output, $with_script_tags = true)
-{
-    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-        ');';
-    if ($with_script_tags) {
-        $js_code = '<script>' . $js_code . '</script>';
-    }
-    echo $js_code;
-}
+//Przygotuj dane do użycia dalej
 $encoded = json_encode($_SESSION["session"]);
 $userData = json_decode($encoded, true);
 ?>
@@ -41,10 +33,17 @@ $userData = json_decode($encoded, true);
     </head>
 
     <script>
+        //Podczas pisania tej aplikacji, niestety zauważyżyłem że biblioteka PHP dla Supabase nie jest wystarczająco rozwinięta
+        //Stąd nie mogłem użyć jej do weryfikacji sesji użytkownika przy wynonywaniu akcji które wymagałyby uwierzytelnienia
+        //np. dodawanie / usuwanie użytkowników
+
+        //Utworzenie klienta JS Supabase
         const SUPABASE_URL = 'https://hsepjgxxozeyktjkbewc.supabase.co'
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc'
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+        //Przekazanie sesji z klienta PHP Supabase do klienta JS
+        //Uwierzytelnianie jest teraz obsługiwane przez blibiotekę JS
         async function loadSession() {
             const access_token = <?php echo json_encode($userData["access_token"]); ?>;
             const refresh_token = <?php echo json_encode($userData["refresh_token"]); ?>;
@@ -118,7 +117,6 @@ $userData = json_decode($encoded, true);
                 // Value to search for
                 $search_value = $userData['city_id'];
 
-                // Use array_filter to find the record(s)
                 $stateId_filtered = array_filter($fetchCityState, function ($user) use ($search_value) {
                     return $user->id == $search_value;
                 });
@@ -126,12 +124,12 @@ $userData = json_decode($encoded, true);
                 $stateId = array_values($stateId_filtered);
 
                 $cityState = json_decode(json_encode($stateId[0]), true);
-                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}\">Usuń</a></td><td><a href=\"editUser.php?userId={$userData['id']}\">Edytuj</a></td></tr>";
+                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}\" onclick=\"checkSession()\">Usuń</a></td><td><a href=\"editUser.php?userId={$userData['id']}\" onclick=\"checkSession()\">Edytuj</a></td></tr>";
             }
 
             echo "</table>";
         } catch (Exception $e) {
-            console_log($e->getMessage());
+            echo $e->getMessage();
         }
         ?>
 
@@ -151,12 +149,12 @@ $userData = json_decode($encoded, true);
                 for ($i = 0; $i < sizeof($fetchCities); $i++) {
                     $cityData = json_decode(json_encode($fetchCities[$i]), true);
 
-                    echo "<tr><td>{$cityData['id']}</td><td>{$cityData['state_id']}</td><td>{$cityData['city']}<td><a href=\"scripts-deleteCity.php?cityId={$cityData['id']}\">Usuń</a></td></tr>";
+                    echo "<tr><td>{$cityData['id']}</td><td>{$cityData['state_id']}</td><td>{$cityData['city']}<td><a href=\"scripts-deleteCity.php?cityId={$cityData['id']}\" onclick=\"checkSession()\">Usuń</a></td></tr>";
                 }
 
                 echo "</table>";
             } catch (Exception $e) {
-                console_log($e->getMessage());
+                echo $e->getMessage();
             }
         }
         ?>
@@ -176,7 +174,7 @@ $userData = json_decode($encoded, true);
             </a>
         </div>
         <div class="auth-form container">
-            <a href="addUser.php">
+            <a href="addUser.php" onclick="checkSession()">
                 <button onclick="checkSession()">Add User</button>
             </a>
         </div>

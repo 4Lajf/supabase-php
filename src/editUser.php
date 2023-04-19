@@ -19,16 +19,6 @@ $service = new PHPSupabase\Service(
 	"https://hsepjgxxozeyktjkbewc.supabase.co/rest/v1/"
 );
 
-function console_log($output, $with_script_tags = true)
-{
-	$js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-		');';
-	if ($with_script_tags) {
-		$js_code = '<script>' . $js_code . '</script>';
-	}
-	echo $js_code;
-}
-
 $userDataQuery = $service->initializeQueryBuilder();
 $citySateQuery = $service->initializeQueryBuilder();
 
@@ -70,11 +60,10 @@ try {
 		$lastname = $userData['lastName'];
 		$birthday = $userData['birthday'];
 		$state = $cityState['state_id'];
-		console_log($state);
 		$city = $userData['cities']['city'];
 	}
 } catch (Exception $e) {
-	console_log($e->getMessage());
+	echo $e->getMessage();
 }
 
 
@@ -87,12 +76,9 @@ try {
 		->getResult();
 
 } catch (Exception $e) {
-	echo "An error occured phase 1";
-	console_log($e->getMessage());
+	echo $e->getMessage();
 	die();
 }
-console_log($listCities);
-
 ?>
 
 <!DOCTYPE html>
@@ -154,7 +140,7 @@ console_log($listCities);
 			<div id="search-container">
 				<label for="search">Search City:</label>
 				<input type="text" name="city" id="city" oninput="searchCity()" placeholder="Search for a city..."
-					value="<?php echo $city ?>">
+					disabled value="<?php echo $city ?>">
 				<div id="search-results"></div>
 			</div>
 

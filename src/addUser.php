@@ -1,6 +1,4 @@
 <?php
-
-
 if (!isset($_SESSION["session"])) {
 	header("Location: login.php");
 	die();
@@ -12,16 +10,6 @@ $service = new PHPSupabase\Service(
 	"https://hsepjgxxozeyktjkbewc.supabase.co/rest/v1/"
 );
 
-function console_log($output, $with_script_tags = true)
-{
-	$js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-		');';
-	if ($with_script_tags) {
-		$js_code = '<script>' . $js_code . '</script>';
-	}
-	echo $js_code;
-}
-
 $listCitiesQuery = $service->initializeQueryBuilder();
 
 try {
@@ -32,12 +20,9 @@ try {
 		->getResult();
 
 } catch (Exception $e) {
-	echo "An error occured phase 1";
-	console_log($e->getMessage());
+	echo "An error occured during loading cities...";
 	die();
 }
-console_log($listCities);
-
 ?>
 
 <!DOCTYPE html>
@@ -98,7 +83,8 @@ console_log($listCities);
 			</select>
 			<div id="search-container">
 				<label for="search">Search City:</label>
-				<input type="text" name="city" id="city" oninput="searchCity()" placeholder="Search for a city...">
+				<input type="text" name="city" id="city" oninput="searchCity()" placeholder="Search for a city..."
+					disabled>
 				<div id="search-results"></div>
 			</div>
 

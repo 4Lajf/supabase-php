@@ -7,15 +7,6 @@ if (!isset($_SESSION["session"])) {
     die();
 }
 
-function console_log($output, $with_script_tags = true)
-{
-    $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
-        ');';
-    if ($with_script_tags) {
-        $js_code = '<script>' . $js_code . '</script>';
-    }
-    echo $js_code;
-}
 
 $firstname = $_POST["firstname"];
 $lastname = $_POST["lastname"];
@@ -52,8 +43,8 @@ try {
         ->getResult();
 
 } catch (Exception $e) {
-    echo "An error occured phase 1";
-    console_log($e->getMessage());
+    echo "An error occured during loading cities...";
+    echo $e->getMessage();
     unset($_SESSION['userId']);
     die();
 }
@@ -81,8 +72,8 @@ if (!isset($fetchCity[0]->city)) {
             ->getResult();
 
     } catch (Exception $e) {
-        echo "An error occured phase 3";
-        console_log($e->getMessage());
+        echo "An error occured during loading cities...";
+        echo $e->getMessage();
         unset($_SESSION['userId']);
         die();
     }
