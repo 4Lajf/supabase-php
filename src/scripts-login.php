@@ -27,9 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $data = $auth->data();
 
             if (isset($data->access_token)) {
-                $userData = $data->user;
                 header("Location: protected.php");
-                $_SESSION["session"] = $userData;
+                $_SESSION["session"] = $data;
                 die();
             } else {
                 throw new Exception("Error: no access token set");

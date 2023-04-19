@@ -1,6 +1,4 @@
 <?php
-
-
 if (isset($_SESSION["session"])) {
 	header("Location: protected.php");
 	die();

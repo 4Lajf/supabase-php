@@ -1,9 +1,5 @@
 <!-- TOOD: make addUser add users to auth table
-add security to dangerous acrions
 merge users and profiles table
-do historyback instsed of header location
-users added by register.php are admin accounts
-users added through form while singed as admin are standard accounts with only basic view
 Make Hide Cities actually hide cities -->
 
 <?php
@@ -12,11 +8,14 @@ if (!isset($_SESSION["session"])) {
     header("Location: login.php");
     die();
 }
+console_log($_SESSION["session"]);
+
 require "vendor/autoload.php";
 $service = new PHPSupabase\Service(
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc",
     "https://hsepjgxxozeyktjkbewc.supabase.co/rest/v1/"
 );
+
 function console_log($output, $with_script_tags = true)
 {
     $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) .
@@ -27,7 +26,7 @@ function console_log($output, $with_script_tags = true)
     echo $js_code;
 }
 $encoded = json_encode($_SESSION["session"]);
-$php_array = json_decode($encoded, true);
+$userData = json_decode($encoded, true);
 ?>
 
 <!DOCTYPE html>
@@ -38,11 +37,40 @@ $php_array = json_decode($encoded, true);
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link href="/dist/output.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     </head>
+
+    <script>
+        const SUPABASE_URL = 'https://hsepjgxxozeyktjkbewc.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc'
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+        async function loadSession() {
+            const access_token = <?php echo json_encode($userData["access_token"]); ?>;
+            const refresh_token = <?php echo json_encode($userData["refresh_token"]); ?>;
+
+            const getSession = await _supabase.auth.setSession({
+                access_token,
+                refresh_token
+            })
+        }
+
+        async function checkSession() {
+            let session = await _supabase.auth.getSession()
+            console.log("session", session)
+            let isSession = session.data.session ? true : false;
+            console.log(isSession)
+            if (isSession === false) {
+                window.location.href = '/scripts-logout.php';
+            }
+        }
+        checkSession()
+        loadSession()
+    </script>
 
     <body>
         <h1 class="text-center">Welcome
-            <?php echo $php_array["user_metadata"]["username"] ?> to the protected page!
+            <?php echo $userData["user"]["user_metadata"]["username"] ?> to the protected page!
         </h1>
         <?php
         if (isset($_SESSION['userDeletedMsg'])) {
@@ -136,7 +164,7 @@ $php_array = json_decode($encoded, true);
         <p class="text-center">This content is only visible to authenticated users.</p>
         <div class="auth-form container">
             <a href="scripts-showTable.php?table=cities">
-                <button>
+                <button onclick="checkSession()">
                     <?php if (isset($_SESSION['showTable'])) {
                         echo 'Hide Cities';
                     } else {
@@ -149,7 +177,7 @@ $php_array = json_decode($encoded, true);
         </div>
         <div class="auth-form container">
             <a href="addUser.php">
-                <button>Add User</button>
+                <button onclick="checkSession()">Add User</button>
             </a>
         </div>
         <form action="scripts-logout.php" method="POST" class="auth-form container">
@@ -158,7 +186,7 @@ $php_array = json_decode($encoded, true);
 
         <p class="text-center">You can also delete your account here</p>
         <form action="scripts-deleteAccount.php" method="POST" class="auth-form container">
-            <button type="submit">Delete Account</button>
+            <button type="submit" onclick="checkSession()">Delete Account</button>
         </form>
     </body>
 </main>
