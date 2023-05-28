@@ -96,23 +96,6 @@ try {
 
 	</head>
 
-	<script>
-		const SUPABASE_URL = 'https://hsepjgxxozeyktjkbewc.supabase.co'
-		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc'
-		const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-		async function checkSession() {
-			let session = await _supabase.auth.getSession()
-			console.log("session", session)
-			let isSession = session.data.session ? true : false;
-			console.log(isSession)
-			if (isSession === false) {
-				window.location.href = '/scripts-logout.php';
-			}
-		}
-		checkSession()
-	</script>
-
 	<body>
 		<h1 class="text-center">Edit User</h1>
 		<form action="scripts-editUser.php" method="POST" class="auth-form container">
@@ -198,6 +181,6 @@ try {
 				}
 
 			</script>
-			<button type="submit" onclick="checkSession()">Edit User</button>
+			<button type="submit"">Edit User</button>
 		</form>
 		<main>

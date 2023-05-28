@@ -31,40 +31,6 @@ $userData = json_decode($encoded, true);
         <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     </head>
-
-    <script>
-        //Podczas pisania tej aplikacji, niestety zauważyżyłem że biblioteka PHP dla Supabase nie jest wystarczająco rozwinięta
-        //Stąd nie mogłem użyć jej do weryfikacji sesji użytkownika przy wynonywaniu akcji które wymagałyby uwierzytelnienia
-        //np. dodawanie / usuwanie użytkowników
-
-        //Utworzenie klienta JS Supabase
-        const SUPABASE_URL = 'https://hsepjgxxozeyktjkbewc.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzZXBqZ3h4b3pleWt0amtiZXdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzYwMzgwODQsImV4cCI6MTk5MTYxNDA4NH0.zusO9r5QquROh2XfQ6CIM0sbL3Re2KPtSOsHK7lsPfc'
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-        //Przekazanie sesji z klienta PHP Supabase do klienta JS
-        //Uwierzytelnianie jest teraz obsługiwane przez blibiotekę JS
-        async function loadSession() {
-            const access_token = <?php echo json_encode($userData["access_token"]); ?>;
-            const refresh_token = <?php echo json_encode($userData["refresh_token"]); ?>;
-
-            const getSession = await _supabase.auth.setSession({
-                access_token,
-                refresh_token
-            })
-        }
-
-        async function checkSession() {
-            let session = await _supabase.auth.getSession()
-            console.log("session", session)
-            let isSession = session.data.session ? true : false;
-            console.log(isSession)
-            if (isSession === false) {
-                window.location.href = '/scripts-logout.php';
-            }
-        }
-        checkSession()
-        loadSession()
     </script>
 
     <body>
@@ -124,7 +90,7 @@ $userData = json_decode($encoded, true);
                 $stateId = array_values($stateId_filtered);
 
                 $cityState = json_decode(json_encode($stateId[0]), true);
-                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}\" onclick=\"checkSession()\">Usuń</a></td><td><a href=\"editUser.php?userId={$userData['id']}\" onclick=\"checkSession()\">Edytuj</a></td></tr>";
+                echo "<tr><td>{$userData['firstName']}</td><td>{$userData['lastName']}</td><td>{$userData['birthday']}</td><td>{$userData['cities']['city']}</td><td>{$cityState['states']['state']}</td><td><a href=\"scripts-deleteUser.php?userId={$userData['id']}>Usuń</a></td><td><a href=\"editUser.php?userId={$userData['id']}>Edytuj</a></td></tr>";
             }
 
             echo "</table>";
@@ -149,7 +115,7 @@ $userData = json_decode($encoded, true);
                 for ($i = 0; $i < sizeof($fetchCities); $i++) {
                     $cityData = json_decode(json_encode($fetchCities[$i]), true);
 
-                    echo "<tr><td>{$cityData['id']}</td><td>{$cityData['state_id']}</td><td>{$cityData['city']}<td><a href=\"scripts-deleteCity.php?cityId={$cityData['id']}\" onclick=\"checkSession()\">Usuń</a></td></tr>";
+                    echo "<tr><td>{$cityData['id']}</td><td>{$cityData['state_id']}</td><td>{$cityData['city']}<td><a href=\"scripts-deleteCity.php?cityId={$cityData['id']}>Usuń</a></td></tr>";
                 }
 
                 echo "</table>";
@@ -162,7 +128,7 @@ $userData = json_decode($encoded, true);
         <p class="text-center">This content is only visible to authenticated users.</p>
         <div class="auth-form container">
             <a href="scripts-showTable.php?table=cities">
-                <button onclick="checkSession()">
+                <button>
                     <?php if (isset($_SESSION['showTable'])) {
                         echo 'Hide Cities';
                     } else {
@@ -174,8 +140,8 @@ $userData = json_decode($encoded, true);
             </a>
         </div>
         <div class="auth-form container">
-            <a href="addUser.php" onclick="checkSession()">
-                <button onclick="checkSession()">Add User</button>
+            <a href="addUser.php">
+                <button>Add User</button>
             </a>
         </div>
         <form action="scripts-logout.php" method="POST" class="auth-form container">
@@ -184,7 +150,7 @@ $userData = json_decode($encoded, true);
 
         <p class="text-center">You can also delete your account here</p>
         <form action="scripts-deleteAccount.php" method="POST" class="auth-form container">
-            <button type="submit" onclick="checkSession()">Delete Account</button>
+            <button type="submit">Delete Account</button>
         </form>
     </body>
 </main>
